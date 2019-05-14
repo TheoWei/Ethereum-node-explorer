@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Ethereum Node Explorer</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css"
+        integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            font-family: sans-serif;
+        }
+
+        #nav-bar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .navbar {
+            background-image: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+        }
+
+        .navbar-nav li {
+            padding: 0 10px;
+        }
+
+        .navbar-nav li a {
+            color: #fff !important;
+            font-weight: 600;
+        }
+
+        .navbar-nav li input {
+            color: #fff !important;
+            font-weight: 600;
+
+        }
+
+        .navbar-toggler {
+            outline: none !important;
+        }
+
+        .footer {
+            background-color: #1f0c0c;
+        }
+
+        .footer>.container {
+            padding-right: 15px;
+            padding-left: 15px;
+        }
+    </style>
+</head>
+
+<body class="d-flex flex-column h-100">
+    <!-- header section -->
+    <section id="nav-bar">
+        <nav class="navbar navbar-expand-lg navbar-dark " style="background-color: blue;">
+
+            <a class="navbar-brand" href="/">
+                <i class="fab fa-ethereum"></i>
+                Ethereum Node Explorer</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+                    </li>
+                    <% if(username) {%>
+                    <li class="nav-item">
+                        <form action="/logout" method="POST">
+                            <input type="submit" class="btn  px-0" value="Log out">
+                        </form>
+                    </li>
+                    <% } else{ %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/signup">SigUp</a>
+                    </li>
+                    <%}%>
+                </ul>
+            </div>
+
+        </nav>
+    </section>
+
+    <!-- container -->
+    <main class="container">
+
+        <form class="mx-auto p-3 d-flex flex-column" action="/search" method="post">
+            <div class="form-group d-flex flex-column">
+                <strong><label for="searchValue">Query transaction / address / block</label></strong>
+                <div class="form-group d-flex flex-row">
+                    <input type="search" class="form-control" id="searchValue" placeholder="hash/ address/ number or hash" name="keyword" >
+                </div>
+                <div class="d-flex flex-row bd-highlight ">
+                    <div class="form-group form-check mr-3">
+                        <input type="radio" class="form-check-input" id="Block" name="condition" value="block">
+                        <label class="form-check-label" for="Block">Block</label>
+                    </div>
+                    <div class="form-group form-check mr-3">
+                        <input type="radio" class="form-check-input" id="Address" name="condition" value="address">
+                        <label class="form-check-label" for="Address">Address</label>
+                    </div>
+                    <div class="form-group form-check mr-3">
+                        <input type="radio" class="form-check-input" id="Transaction" name="condition"
+                            value="transaction">
+                        <label class="form-check-label" for="Transaction">Transaction</label>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Query</button>
+        </form>
+
+
+        <section class="d-flex flex-column justify-content-center align-items-center">
+            <div class="card p-3 d-flex mb-5">
+                <h2 class="p-2">Current network condition</h2>
+                <% output.forEach( item => { %>
+                    <div class=" pt-2">
+                        <h6><strong class="d-block"><%= item[0] %>：</strong></h6>
+                        <p class="media-body p-0 m-0 border-bottom border-gray text-break">
+                            <%= item[1] %>
+                        </p>
+                    </div>
+                    <% }); %>
+            </div>
+
+            </div>
+    </section>
+    </main>
+    <!-- begin section -->
+
+    <footer class="footer mt-auto py-3 fixed-bottom">
+        <div class="container">
+            <span class="text-muted">&copy;Copyright</span>
+        </div>
+    </footer>
+
+</body>
+
+</html>
